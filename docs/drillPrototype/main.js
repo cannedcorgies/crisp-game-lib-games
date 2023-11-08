@@ -9,10 +9,10 @@
 //      for final velocity
 
 // The title of the game to be displayed on the title screen
-title = "DRILL DRILL DRILL";
+title = "DRILLDRILLDRILL";
 
 // The description, which is also displayed on the title screen
-description = `
+description = ` HOLD [ SPACE ] TO DRILL IN SAND OR DIVE IN AIR
 `;
 
 // The array of custom sprites
@@ -31,16 +31,12 @@ rrrrrrr
 
 // Game design variable container
 const G = {
-	WIDTH: 100,
+	WIDTH: 300,
 	HEIGHT: 150,
 
-    STAR_SPEED_MIN: 0.5,
-	STAR_SPEED_MAX: 1.0,
+  STAR_SPEED_MIN: 2,
+	STAR_SPEED_MAX: 5,
 
-	PLAYER_FIRE_RATE: 4,
-	PLAYER_GUN_OFFSET: 3,
-
-	FBULLET_SPEED: 5
 };
 
 // Game runtime options
@@ -78,68 +74,225 @@ let stars;
  * @type { Player }
  */
 let player;
+let enteredDirt;
+let enteredDirt_trigger;
+
+/** @type {{pos: Vector, width: number, height: number}[]} */
+let floors;
+let nextFloorDist;
 
 let radians;
+let angle;
 let rotateRate;
+
+let scr;
+let speedBoost_max;
+let speedBoos_rem
 
 // The game loop function
 function update() {
     // The init function running at startup
 	if (!ticks) {
-        // A CrispGameLib function
-        // First argument (number): number of times to run the second argument
-        // Second argument (function): a function that returns an object. This
-        // object is then added to an array. This array will eventually be
-        // returned as output of the times() function.
-		stars = times(20, () => {
-            // Random number generator function
-            // rnd( min, max )
-            const posX = rnd(0, G.WIDTH);
-            const posY = rnd(0, G.HEIGHT);
-            // An object of type Star with appropriate properties
-            return {
-                // Creates a Vector
-                pos: vec(posX, posY),
-                // More RNG
-                speed: rnd(G.STAR_SPEED_MIN, G.STAR_SPEED_MAX)
-            };
-        });
+    
+    stars = times(20, () => {
+
+      const posX = rnd(0, G.WIDTH);
+      const posY = rnd(0, G.HEIGHT);
+
+      return {
+        pos: vec(posX, posY),
+        speed: rnd(G.STAR_SPEED_MIN, G.STAR_SPEED_MAX)
+      };
+
+    });
 
     player = {
-      pos: vec(G.WIDTH * 0.5, G.HEIGHT * 0.5),
+
+      pos: vec(G.WIDTH * 0.1, G.HEIGHT * 0.5),
       vel: vec(0, 0),
-			angle: 0,
+      angle: 0,
 			rotation: 1
+
     };
+
+    floors = [
+
+      { pos: vec(70, 100), width: 90, height: 90},
+      { pos: vec(150, 80), width: 90, height: 90},
+      { pos: vec(340, 20), width: 90, height: 90}
+
+    ];
+
+    nextFloorDist = 0;
 
     rotateRate = 0.05;
 
+    scr = 1;
+    speedBoost_max = 1;
+    speedBoos_rem = 0;
+
 	}
+
+  scr = (1 * ((2 - (abs(player.angle/100)))));
+  addScore(scr);
+
+  console.log("scr: " + scr);
+  console.log("-- " + (10 - (abs(player.angle/10))));
+  console.log("-- remaining: " + speedBoos_rem);
+
+  // Update for Star
+  stars.forEach((s) => {
+    
+    s.pos.x -= s.speed * scr;
+    
+    if (s.pos.x < 0) s.pos.x = G.WIDTH;
+
+    color("light_black");
+    box(s.pos, rnd(1,5));
+
+  });
+
+  //// FLOOOOOORS
+
+  nextFloorDist -= scr;   // next floor cooldown reduced by movement left
+
+  if (nextFloorDist < 0) {    // if cooldown through,
+
+    const width = rnd(40, 80);                    // get semi random width
+    const height = rnd(40, 80);
+
+    floors.push({                                 // and push a new floor with semi random width
+
+      pos: vec(G.WIDTH + width / 2, rndi(30, 90)),    // offset horizontally, random vertically
+      width,
+      height,
+    });
+
+    nextFloorDist += width + rnd(10, 30);         // cooldown based on the currently generated floor ( as to not overlap )
+
+  }
+  
+  remove(floors, (f) => {
+
+    f.pos.x -= scr;         // move platform left
+    color("light_yellow");
+
+
+    const c = box(f.pos, f.width, f.height).isColliding.rect;
+    
+    return f.pos.x < -f.width / 2;    // returns true if the position of platform is all the way to the left (past the screen border, even)
+
+  });
+
+  ////  PHYSICS  ////
 	
+  // angle
 	player.pos.clamp(0, G.WIDTH, 0, G.HEIGHT);
 
   radians = (player.rotation - 1) * (Math.PI/2);
-  player.angle = radians * 180/Math.PI;
+  angle = radians * 180/Math.PI;
 
-  if (player.angle) {
-    rotateRate *= abs(player.angle);
+  if (angle) {
+    rotateRate *= abs(angle);
   }
 
+  // PARTICLE angle
+
+  player.angle = 90 - 90 * (2 - player.rotation);
+
+  // dirt collision
+  if (char("a", player.pos, {rotation: player.rotation}).isColliding.rect.light_yellow) {
+
+    if (!enteredDirt_trigger) {
+
+      // particle(m.pos, 1, m.speed, m.angle + PI, 1);
+      color ("yellow");
+      particle(player.pos, 20, 2, player.angle - 180, 1);
+      
+      enteredDirt_trigger = true;
+
+    }
+
+    color ("yellow");
+    particle(player.pos, 20, 0.5, player.angle - 180, 1);
+
+    color ("light_yellow");
+    particle(player.pos, 50, 0.5, player.angle - 180, 1);
+
+    enteredDirt = true;
+
+  } else {
+
+    if (enteredDirt_trigger) {
+
+      color ("yellow");
+      particle(player.pos.x, player.pos.y, 100, 3, player.angle, 1);
+
+    }
+
+    enteredDirt = false;
+    enteredDirt_trigger = false;
+
+  }
+
+
+  // input
   if (input.isPressed) {            // rotate up
 
-    if (player.rotation > 0.2) {
-      player.rotation -= 0.05;
+    if (enteredDirt) {
+      
+      if (player.rotation > 0.2) {
+        player.rotation -= 0.02;
+      }
+
+    }
+
+    else {
+
+      if (player.rotation < 1.8 ) {
+        player.rotation += 0.02 * 2;
+      }
+
     }
 
   } else {                          // rotate down
 
     if (player.rotation < 1.8 ) {
-      player.rotation += 0.05;
+      player.rotation += 0.02;
     }
 
   }
 
-  player.vel.y = (0.04 * player.angle);
+  if (input.isJustPressed) {
+
+    //speedBoos_rem = speedBoost_max - 0.1;
+
+    if (angle < -20) {
+      player.vel.y = (0.04 * angle * scr);
+  
+    } else if (angle > 45 && !enteredDirt){
+  
+      player.vel.y = (0.04 * angle * scr);
+  
+    }
+
+  } else {
+  
+    player.vel.y = (0.04 * angle);
+
+  }
+
+  speedBoos_rem *= Math.sin((speedBoos_rem * Math.PI) / 2)// MAYBE: 1 - Math.pow(1 - speedBoos_rem, 3);
+  console.log(Math.sin((speedBoos_rem * Math.PI) / 2));
+  /*if (speedBoos_rem < 0) {
+
+    speedBoos_rem = 0;
+
+  }*/
+
+
+  // MOVE
+
   player.pos.add(player.vel);
 
   
@@ -147,19 +300,10 @@ function update() {
 	color ("black");
   char("a", player.pos, {rotation: player.rotation});
 
-	
-    // Update for Star
-    stars.forEach((s) => {
-        // Move the star downwards
-        s.pos.x -= s.speed;
-        // Bring the star back to top once it's past the bottom of the screen
-        if (s.pos.x < 0) s.pos.x = G.WIDTH;
+  if (player.pos.y > G.HEIGHT) {
+  
+    end();
 
-        // Choose a color to draw
-        color("light_black");
-        // Draw the star as a square of size 1
-        box(s.pos, rnd(1,5));
-    });
-
+  }
 
 }

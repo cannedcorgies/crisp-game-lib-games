@@ -75,6 +75,8 @@ function update() {
     nextBulletDist = 99;
     isFalling = false;
   }
+
+  // nah
   const scr = sqrt(difficulty);
   if (bird.isJumping) {
     if (chicks.length > 0 && input.isJustPressed) {
@@ -102,19 +104,32 @@ function update() {
   }
   color("black");
   char(bird.vy < 0 ? "b" : "a", bird.pos);
-  nextFloorDist -= scr;
-  if (nextFloorDist < 0) {
-    const width = rnd(40, 80);
-    floors.push({
-      pos: vec(200 + width / 2, rndi(30, 90)),
+
+////  THIS ONE, THIS ONE, FERN
+  nextFloorDist -= scr;   // next floor cooldown reduced by movement left
+
+  if (nextFloorDist < 0) {    // if cooldown through,
+
+    const width = rnd(40, 80);                    // get semi random width
+
+    floors.push({                                 // and push a new floor with semi random width
+
+      pos: vec(200 + width / 2, rndi(30, 90)),    // offset horizontally, random vertically
       width,
       hasChick: true,
+
     });
-    nextFloorDist += width + rnd(10, 30);
+
+    nextFloorDist += width + rnd(10, 30);         // cooldown based on the currently generated floor ( as to not overlap )
+
   }
+  
   remove(floors, (f) => {
-    f.pos.x -= scr;
+
+    f.pos.x -= scr;         // move platform left
     color("light_yellow");
+
+
     const c = box(f.pos, f.width, 4).isColliding.rect;
     if (bird.vy > 0 && c.white) {
       bird.pos.y = f.pos.y - 5;
@@ -133,8 +148,12 @@ function update() {
         f.hasChick = false;
       }
     }
-    return f.pos.x < -f.width / 2;
+    return f.pos.x < -f.width / 2;    // returns true if the position of platform is all the way to the left (past the screen border, even)
+
   });
+//////////
+
+  // nah
   bird.posHistory.forEach((p) => {
     p.x -= scr;
   });
