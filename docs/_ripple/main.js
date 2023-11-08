@@ -134,6 +134,26 @@ function update() {
   // game over - you miss
   if (playerRing.radius <= 0) {
 
+    if (colorTick) {
+
+      color("yellow");
+      text("YELLOW WINS!", vec(G.WIDTH/2 + 50, G.HEIGHT/2 + 20));
+
+      arc(playerRing.pos, playerRing.radius, playerRing.thickness);
+      arc(targetRing.pos, targetRing.radius, targetRing.thickness);
+      arc(bloingRing.pos, bloingRing.radius, bloingRing.thickness);
+
+    } else {
+
+      color("cyan");
+      text("CYAN WINS!", vec(G.WIDTH/2 + 50, G.HEIGHT/2 + 20));
+
+      arc(playerRing.pos, playerRing.radius, playerRing.thickness);
+      arc(targetRing.pos, targetRing.radius, targetRing.thickness);
+      arc(bloingRing.pos, bloingRing.radius, bloingRing.thickness);
+
+    }
+
     end();
 
   }
