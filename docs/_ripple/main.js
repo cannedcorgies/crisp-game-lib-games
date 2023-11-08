@@ -1,6 +1,8 @@
-title = "ripple prototype";
+title = "-- ripple --";
 
-description = `
+description = `player 1 cyan, player 2 yellow.
+
+    first one to miss loses
 `;
 
 characters = [];
@@ -176,6 +178,8 @@ function resetCircle() {
 
   firstHit ++;
   hits ++;
+
+  addScore(1);
 
   if (hits >= 5 && level > 0.4) {
 
