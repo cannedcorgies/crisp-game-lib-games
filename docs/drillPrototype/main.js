@@ -158,12 +158,12 @@ function update() {
 
   if (nextFloorDist < 0) {    // if cooldown through,
 
-    const width = rnd(40, 80);                    // get semi random width
-    const height = rnd(40, 80);
+    const width = rnd(40, 150);                    // get semi random width
+    const height = rnd(40, 100);
 
     floors.push({                                 // and push a new floor with semi random width
 
-      pos: vec(G.WIDTH + width / 2, rndi(30, 90)),    // offset horizontally, random vertically
+      pos: vec(G.WIDTH + width + 50, rndi(30, 90)),    // offset horizontally, random vertically
       width,
       height,
     });
