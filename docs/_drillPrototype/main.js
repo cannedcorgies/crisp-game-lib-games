@@ -88,6 +88,8 @@ let rotateRate;
 let scr;
 let speedBoost_max;
 let speedBoos_rem
+let level;
+let intervalID;
 
 // The game loop function
 function update() {
@@ -133,12 +135,8 @@ function update() {
 
 	}
 
-  scr = (1 * ((2 - (abs(player.angle/100)))));
+  scr = (((2 - (abs(player.angle/100))) * (2 - (abs(player.angle/100)))) + (score/10000)) * .6;
   addScore(scr);
-
-  console.log("scr: " + scr);
-  console.log("-- " + (10 - (abs(player.angle/10))));
-  console.log("-- remaining: " + speedBoos_rem);
 
   // Update for Star
   stars.forEach((s) => {
@@ -148,7 +146,14 @@ function update() {
     if (s.pos.x < 0) s.pos.x = G.WIDTH;
 
     color("light_black");
-    box(s.pos, rnd(1,5));
+    
+    if (box(s.pos, rnd(1,3)).isColliding.rect.light_yellow) {
+
+      console.log("TOUCH!");
+      color ("yellow");
+      particle(s.pos, 20, 2);
+
+    }
 
   });
 
@@ -187,9 +192,7 @@ function update() {
   ////  PHYSICS  ////
 	
   // angle
-	player.pos.clamp(0, G.WIDTH, 0, G.HEIGHT);
-
-  radians = (player.rotation - 1) * (Math.PI/2);
+	radians = (player.rotation - 1) * (Math.PI/2);
   angle = radians * 180/Math.PI;
 
   if (angle) {
@@ -205,19 +208,18 @@ function update() {
 
     if (!enteredDirt_trigger) {
 
-      // particle(m.pos, 1, m.speed, m.angle + PI, 1);
       color ("yellow");
-      particle(player.pos, 20, 2, player.angle - 180, 1);
+      particle(player.pos, 20, 2, radians + PI, 1);
       
       enteredDirt_trigger = true;
 
     }
 
     color ("yellow");
-    particle(player.pos, 20, 0.5, player.angle - 180, 1);
+    particle(player.pos, 20, 0.5, radians);
 
     color ("light_yellow");
-    particle(player.pos, 50, 0.5, player.angle - 180, 1);
+    particle(player.pos, 50, 1, radians);
 
     enteredDirt = true;
 
@@ -226,7 +228,9 @@ function update() {
     if (enteredDirt_trigger) {
 
       color ("yellow");
-      particle(player.pos.x, player.pos.y, 100, 3, player.angle, 1);
+      particle(player.pos.x, player.pos.y, 100, 3, radians, 1);
+
+      console.log("out " + player.angle);
 
     }
 
@@ -265,9 +269,10 @@ function update() {
 
   if (input.isJustPressed) {
 
-    //speedBoos_rem = speedBoost_max - 0.1;
-
     if (angle < -20) {
+
+      color ("light_red");
+      particle(player.pos.x, player.pos.y, 50, 4, radians, 1);
       player.vel.y = (0.04 * angle * scr);
   
     } else if (angle > 45 && !enteredDirt){
@@ -282,17 +287,6 @@ function update() {
 
   }
 
-  speedBoos_rem *= Math.sin((speedBoos_rem * Math.PI) / 2)// MAYBE: 1 - Math.pow(1 - speedBoos_rem, 3);
-  console.log(Math.sin((speedBoos_rem * Math.PI) / 2));
-  /*if (speedBoos_rem < 0) {
-
-    speedBoos_rem = 0;
-
-  }*/
-
-
-  // MOVE
-
   player.pos.add(player.vel);
 
   
@@ -300,7 +294,9 @@ function update() {
 	color ("black");
   char("a", player.pos, {rotation: player.rotation});
 
-  if (player.pos.y > G.HEIGHT) {
+  if (player.pos.y > G.HEIGHT + 50) {
+
+    window.clearInterval(intervalID);
   
     end();
 
