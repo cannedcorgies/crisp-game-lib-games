@@ -82,7 +82,7 @@ let player;
 let enteredDirt;
 let enteredDirt_trigger;
 
-/** @type {{pos: Vector, width: number, height: number}[]} */
+/** @type {{pos: Vector, width: number, height: number, type: number}[]} */
 let floors;
 let nextFloorDist;
 
@@ -129,11 +129,11 @@ function update() {
 
     floors = [
 
-      { pos: vec(70, 100), width: 90, height: 90},
-      { pos: vec(170, 80), width: 150, height: 110},
-      { pos: vec(370, 35), width: 90, height: 100},
-      { pos: vec(400, 120), width: 90, height: 150},
-      { pos: vec(510, 80), width: 120, height: 100}
+      { pos: vec(70, 100), width: 90, height: 90, type: 1},
+      { pos: vec(170, 80), width: 150, height: 110, type: 1},
+      { pos: vec(370, 35), width: 90, height: 100, type: 1},
+      { pos: vec(400, 120), width: 90, height: 150, type: 1},
+      { pos: vec(510, 80), width: 120, height: 100, type: 1}
 
     ];
 
@@ -162,11 +162,14 @@ function update() {
     const width = rnd(40, 150);                    // get semi random width
     const height = rnd(40, 100);
 
+    const type = Math.trunc(Math.random()*12) + 0;
+
     floors.push({                                 // and push a new floor with semi random width
 
       pos: vec(G.WIDTH + width + 50, rndi(30, 90)),    // offset horizontally, random vertically
       width,
       height,
+      type
     });
 
     nextFloorDist += width + rnd(10, 30);         // cooldown based on the currently generated floor ( as to not overlap )
@@ -180,7 +183,14 @@ function update() {
     f.pos.add(screenShake);
 
     color("light_yellow");
-    const c = box(f.pos, f.width, f.height).isColliding.rect;
+
+    if (f.type <=8) {
+
+      const c = box(f.pos, f.width, f.height).isColliding.rect;
+
+    } else {
+      const c = arc(f.pos, f.width/3, 30).isColliding.rect;
+    }
     
     return f.pos.x < -f.width / 2;    // returns true if the position of platform is all the way to the left (past the screen border, even)
 
