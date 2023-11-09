@@ -12,7 +12,11 @@
 title = "DRILLDRILLDRILL";
 
 // The description, which is also displayed on the title screen
-description = ` HOLD [ SPACE ] TO DRILL IN SAND OR DIVE IN AIR
+description = ` HOLD [ SPACE ] TO 
+
+ DRILL UP IN SAND 
+
+  OR DIVE DOWN IN AIR
 `;
 
 // The array of custom sprites
@@ -45,7 +49,8 @@ options = {
 	viewSize: {x: G.WIDTH, y: G.HEIGHT},
     isCapturing: true,
     isCapturingGameCanvasOnly: true,
-    captureCanvasScale: 2
+    captureCanvasScale: 2,
+    isReplayEnabled: true
 };
 
 // JSDoc comments for typing
@@ -91,6 +96,11 @@ let speedBoos_rem
 let level;
 let intervalID;
 
+let screenShake;
+let screenShake_range;
+
+let tip;
+
 // The game loop function
 function update() {
     // The init function running at startup
@@ -120,8 +130,10 @@ function update() {
     floors = [
 
       { pos: vec(70, 100), width: 90, height: 90},
-      { pos: vec(150, 80), width: 90, height: 90},
-      { pos: vec(340, 20), width: 90, height: 90}
+      { pos: vec(170, 80), width: 150, height: 110},
+      { pos: vec(370, 35), width: 90, height: 100},
+      { pos: vec(400, 120), width: 90, height: 150},
+      { pos: vec(510, 80), width: 120, height: 100}
 
     ];
 
@@ -133,29 +145,13 @@ function update() {
     speedBoost_max = 1;
     speedBoos_rem = 0;
 
+    screenShake = vec(0, 0);
+    screenShake_range = 1;
+
 	}
 
   scr = (((2 - (abs(player.angle/100))) * (2 - (abs(player.angle/100)))) + (score/10000)) * .6;
   addScore(scr);
-
-  // Update for Star
-  stars.forEach((s) => {
-    
-    s.pos.x -= s.speed * scr;
-    
-    if (s.pos.x < 0) s.pos.x = G.WIDTH;
-
-    color("light_black");
-    
-    if (box(s.pos, rnd(1,3)).isColliding.rect.light_yellow) {
-
-      console.log("TOUCH!");
-      color ("yellow");
-      particle(s.pos, 20, 2);
-
-    }
-
-  });
 
   //// FLOOOOOORS
 
@@ -178,16 +174,37 @@ function update() {
   }
   
   remove(floors, (f) => {
+  
+  ////MOVEMENT
+    f.pos.x -= scr;         // move platform left'
+    f.pos.add(screenShake);
 
-    f.pos.x -= scr;         // move platform left
     color("light_yellow");
-
-
     const c = box(f.pos, f.width, f.height).isColliding.rect;
     
     return f.pos.x < -f.width / 2;    // returns true if the position of platform is all the way to the left (past the screen border, even)
 
   });
+
+  // Update for Star
+  stars.forEach((s) => {
+    
+    //// MOVEMENT
+      s.pos.x -= s.speed * scr;
+      s.pos.add(screenShake);
+      
+      if (s.pos.x < 0) s.pos.x = G.WIDTH;
+  
+      color("yellow");
+      
+      if (box(s.pos, rnd(1,3)).isColliding.rect.light_yellow) {
+  
+        color ("light_yellow");
+        particle(s.pos, 10, 0.2);
+  
+      }
+  
+    });
 
   ////  PHYSICS  ////
 	
@@ -206,8 +223,11 @@ function update() {
   // dirt collision
   if (char("a", player.pos, {rotation: player.rotation}).isColliding.rect.light_yellow) {
 
-    if (!enteredDirt_trigger) {
+    play("explosion");
 
+    if (!enteredDirt_trigger) {   // on entering dirt...
+
+      play("explosion");
       color ("yellow");
       particle(player.pos, 20, 2, radians + PI, 1);
       
@@ -225,8 +245,9 @@ function update() {
 
   } else {
 
-    if (enteredDirt_trigger) {
+    if (enteredDirt_trigger) {    // on exiting dirt...
 
+      play("explosion");
       color ("yellow");
       particle(player.pos.x, player.pos.y, 100, 3, radians, 1);
 
@@ -241,17 +262,35 @@ function update() {
 
 
   // input
-  if (input.isPressed) {            // rotate up
+  if (input.isPressed) {            // button pressed
 
-    if (enteredDirt) {
+
+    if (enteredDirt) {                // rotate up, if in dirt
+
+      //play("laser");
+      play("hit");
       
-      if (player.rotation > 0.2) {
-        player.rotation -= 0.02;
-      }
+      screenShake = vec(rnd(-screenShake_range, screenShake_range), rnd(-screenShake_range, screenShake_range));
+      screenShake.x *= 0.3;
+      screenShake.y *= 0.3;
+
+      player.rotation -= 0.02;
 
     }
 
-    else {
+    else {    // rotate down if in air
+
+      play("powerUp");
+      color("light_red");
+      particle(player.pos, 10, 1, radians);
+      color("light_black");
+      particle(player.pos, 50, 3, radians + PI, 1);
+      color("red");
+      particle(player.pos, 20, 0.5, radians + PI, 1);
+
+      screenShake = vec(rnd(-screenShake_range, screenShake_range), rnd(-screenShake_range, screenShake_range));
+      screenShake.x *= 4;
+      screenShake.y *= 4;
 
       if (player.rotation < 1.8 ) {
         player.rotation += 0.02 * 2;
@@ -260,6 +299,8 @@ function update() {
     }
 
   } else {                          // rotate down
+
+    screenShake = vec(0, 0);
 
     if (player.rotation < 1.8 ) {
       player.rotation += 0.02;
@@ -287,8 +328,9 @@ function update() {
 
   }
 
+////MOVEMENT
   player.pos.add(player.vel);
-
+  player.pos.add(screenShake);
   
 	
 	color ("black");
@@ -298,6 +340,49 @@ function update() {
 
     window.clearInterval(intervalID);
   
+    play("select")
+
+    tip = Math.trunc(Math.random()*7) + 0;
+    
+    if (tip == 0) {
+
+      text("try letting go of [space]", G.WIDTH/5, G.HEIGHT/2 + 50)
+      text("    RIGHT before exiting sand!!", G.WIDTH/4, G.HEIGHT/2 + 60)
+
+    } else if (tip == 1) {
+
+      text("an alarm will sound when you're", G.WIDTH/5, G.HEIGHT/2 + 50)
+      text("    nose diving!!", G.WIDTH/4, G.HEIGHT/2 + 60)
+
+    } else if (tip == 2) {
+
+      text("holding [space] in the air ", G.WIDTH/5, G.HEIGHT/2 + 50)
+      text("      will", G.WIDTH/4, G.HEIGHT/2 + 60)
+      text("  send you crashing!!", G.WIDTH/4, G.HEIGHT/2 + 70)
+
+    } else if (tip == 3) {
+
+      text("hold [space] while in yellow sand", G.WIDTH/5, G.HEIGHT/2 + 50)
+      text("      to ascend!!", G.WIDTH/4, G.HEIGHT/2 + 60)
+
+    } else if (tip == 4) {
+
+      text("flying straight means you fly faster!", G.WIDTH/4, G.HEIGHT/2 + 50)
+
+    } else if (tip == 5) {
+
+      text("use momentum to", G.WIDTH/4, G.HEIGHT/2 + 50)
+      text("    jump across large gaps!!", G.WIDTH/4, G.HEIGHT/2 + 60)
+
+    } else if (tip == 6) {
+
+      text("if the alarm is sounding,", G.WIDTH/4, G.HEIGHT/2 + 45)
+      color("red");
+      text("    LET GO OF [SPACE]!!", G.WIDTH/4, G.HEIGHT/2 + 55)
+
+    }
+
+    console.log(tip);
     end();
 
   }
