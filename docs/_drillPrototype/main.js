@@ -82,7 +82,7 @@ let player;
 let enteredDirt;
 let enteredDirt_trigger;
 
-/** @type {{pos: Vector, width: number, height: number, type: number}[]} */
+/** @type {{pos: Vector, width: number, height: number, radius: number, type: number}[]} */
 let floors;
 let nextFloorDist;
 
@@ -129,11 +129,11 @@ function update() {
 
     floors = [
 
-      { pos: vec(70, 100), width: 90, height: 90, type: 1},
-      { pos: vec(170, 80), width: 150, height: 110, type: 1},
-      { pos: vec(370, 35), width: 90, height: 100, type: 1},
-      { pos: vec(400, 120), width: 90, height: 150, type: 1},
-      { pos: vec(510, 80), width: 120, height: 100, type: 1}
+      { pos: vec(70, 100), width: 90, height: 90, radius: 0, type: 1},
+      { pos: vec(170, 80), width: 150, height: 110, radius: 0, type: 1},
+      { pos: vec(370, 35), width: 90, height: 100, radius: 0, type: 1},
+      { pos: vec(400, 120), width: 90, height: 150, radius: 0, type: 1},
+      { pos: vec(510, 80), width: 120, height: 100, radius: 0, type: 1}
 
     ];
 
@@ -161,6 +161,7 @@ function update() {
 
     const width = rnd(40, 150);                    // get semi random width
     const height = rnd(40, 100);
+    const radius = Math.trunc(Math.random()*21) + 15;
 
     const type = Math.trunc(Math.random()*12) + 0;
 
@@ -169,6 +170,7 @@ function update() {
       pos: vec(G.WIDTH + width + 50, rndi(30, 90)),    // offset horizontally, random vertically
       width,
       height,
+      radius,
       type
     });
 
@@ -189,7 +191,7 @@ function update() {
       const c = box(f.pos, f.width, f.height).isColliding.rect;
 
     } else {
-      const c = arc(f.pos, f.width/3, 30).isColliding.rect;
+      const c = arc(f.pos, f.width/3, f.radius).isColliding.rect;
     }
     
     return f.pos.x < -f.width / 2;    // returns true if the position of platform is all the way to the left (past the screen border, even)

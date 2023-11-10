@@ -61,6 +61,11 @@ let hits;
 let level_time;
 let firstHit;
 
+let screenShake;
+let screenShake_range;
+let screenShake_max;
+let screenShake_savedTime;
+
 function update() {
 
   if (!ticks) {
@@ -99,14 +104,31 @@ function update() {
 
     };
 
+    screenShake = vec(0, 0);
+    screenShake_range = 0;
+    screenShake_max = 1;
+    screenShake_savedTime = ticks;
+
   }
 
   level_time = 60 * level;
 
+  if (
+    screenShake_range > 0.2) {screenShake_range = (screenShake_range * (Math.cos(((ticks - screenShake_savedTime)/(level_time/2) * Math.PI) / 2)));
+  } else {
+    screenShake_range = 0;
+    resetSizes();
+  }
+
+  screenShake = vec(rnd(-screenShake_range, screenShake_range), rnd(-screenShake_range, screenShake_range));
+  screenShake.x *= 3;
+  screenShake.y *= 3;
+
+  console.log("screenshake: " + screenShake_range);
+
 //// INNER RING
 
   // color inner ring based on previous color
-  console.log(firstHit);
   if (firstHit == 0){
     color("light_black");
   } else if (colorTick_prev == 1) {
@@ -123,10 +145,10 @@ function update() {
 
 //// BLOING RING
 
-  // interpolate to small size
+  // interpolate to big size
   bloingRing.radius = defSize_bloing + (maxSize_bloing * (Math.sin(((ticks - savedTime)/level_time * Math.PI) / 4)));
   
-  if (firstHit) { arc(bloingRing.pos, bloingRing.radius, bloingRing.thickness); }
+  if (firstHit) { arc(bloingRing.pos.add(screenShake), bloingRing.radius, bloingRing.thickness); }
 
 //// PLAYER RING
 
@@ -151,7 +173,14 @@ function update() {
 
       resetCircle();                      // and reset circle
 
-    } 
+    } else {
+
+      //endGame();                            // EXPERIMENNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNT
+      screenShake_range = screenShake_max;
+      screenShake_savedTime = ticks;
+      console.log("MISSED");
+
+    }
   
   }
 
@@ -172,7 +201,7 @@ function update() {
 
   overlapJuice();
 
-  arc(playerRing.pos, playerRing.radius, playerRing.thickness);
+  arc(playerRing.pos.add(screenShake), playerRing.radius, playerRing.thickness);
 
   // draw outer circle
   if (firstHit == 0){
@@ -185,32 +214,12 @@ function update() {
 
   overlapJuice();
 
-  arc(targetRing.pos, targetRing.radius, targetRing.thickness);
+  arc(targetRing.pos.add(screenShake), targetRing.radius, targetRing.thickness);
 
   // game over - you miss
   if (playerRing.radius <= 0) {
 
-    if (colorTick) {
-
-      color("yellow");
-      text("YELLOW WINS!", vec(G.WIDTH/2 + 50, G.HEIGHT/2 + 20));
-
-      arc(playerRing.pos, playerRing.radius, playerRing.thickness);
-      arc(targetRing.pos, targetRing.radius, targetRing.thickness);
-      arc(bloingRing.pos, bloingRing.radius, bloingRing.thickness);
-
-    } else {
-
-      color("cyan");
-      text("CYAN WINS!", vec(G.WIDTH/2 + 50, G.HEIGHT/2 + 20));
-
-      arc(playerRing.pos, playerRing.radius, playerRing.thickness);
-      arc(targetRing.pos, targetRing.radius, targetRing.thickness);
-      arc(bloingRing.pos, bloingRing.radius, bloingRing.thickness);
-
-    }
-
-    end();
+    endGame();
 
   }
 
@@ -219,6 +228,9 @@ function update() {
 function resetCircle() {
 
   // console.log("RESET");
+
+  play("coin");
+  play("laser");
 
   playerRing.radius = defSize;
 
@@ -269,5 +281,39 @@ function overlapJuice() {
     color("light_red");
   
   } 
+
+}
+
+function resetSizes() {
+
+  playerRing.pos = vec(G.WIDTH * 0.5, G.HEIGHT * 0.5)
+  targetRing.pos = vec(G.WIDTH * 0.5, G.HEIGHT * 0.5)
+  bloingRing.pos = vec(G.WIDTH * 0.5, G.HEIGHT * 0.5)
+
+}
+
+function endGame() {
+
+  if (colorTick) {
+
+    color("yellow");
+    text("YELLOW WINS!", vec(G.WIDTH/2 + 50, G.HEIGHT/2 + 20));
+
+    arc(playerRing.pos, playerRing.radius, playerRing.thickness);
+    arc(targetRing.pos, targetRing.radius, targetRing.thickness);
+    arc(bloingRing.pos, bloingRing.radius, bloingRing.thickness);
+
+  } else {
+
+    color("cyan");
+    text("CYAN WINS!", vec(G.WIDTH/2 + 50, G.HEIGHT/2 + 20));
+
+    arc(playerRing.pos, playerRing.radius, playerRing.thickness);
+    arc(targetRing.pos, targetRing.radius, targetRing.thickness);
+    arc(bloingRing.pos, bloingRing.radius, bloingRing.thickness);
+
+  }
+
+  end();
 
 }
