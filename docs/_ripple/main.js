@@ -1,8 +1,13 @@
 title = "-- ripple --";
 
-description = `player 1 cyan, player 2 yellow.
+description = ` 2 PLAYER - P1 CYAN, P2 YELLOW
 
-    first one to miss loses
+- PRESS [SPACE] WHEN CIRCLES OVERLAP
+
+    - YOUR TURN WHEN OUTER CIRCLE IS YOUR COLOR
+
+  - FIRST PLAYER TO MISS LOSES
+
 `;
 
 characters = [];
@@ -20,7 +25,8 @@ options = {
 	viewSize: {x: G.WIDTH, y: G.HEIGHT},
     isCapturing: true,
     isCapturingGameCanvasOnly: true,
-    captureCanvasScale: 2
+    captureCanvasScale: 2,
+    isReplayEnabled: true
 };
 
 // radius?: number, thickness?: number, angleFrom?: number, angleTo?: number)
@@ -100,7 +106,10 @@ function update() {
 //// INNER RING
 
   // color inner ring based on previous color
-  if (colorTick_prev == 1) {
+  console.log(firstHit);
+  if (firstHit == 0){
+    color("light_black");
+  } else if (colorTick_prev == 1) {
     color("cyan");
   } else if (colorTick_prev == 0){
     color("yellow");
@@ -131,6 +140,53 @@ function update() {
   // interpolate to small size
   playerRing.radius = defSize * ((1 - Math.sin(((ticks - savedTime)/level_time * Math.PI) / 8)));
 
+  // attempted to press first chance
+  if (input.isJustPressed) {
+
+    // if two rings are colliding...
+    if ( playerRing.radius > targetRing.radius * 0.75
+      && playerRing.radius < targetRing.radius * 1.25) {
+
+      particle(targetRing.pos, 1000, 5);  // JUICE
+
+      resetCircle();                      // and reset circle
+
+    } 
+  
+  }
+
+  // attempted to press second chance
+  if (input.isJustPressed) {
+
+    // if two rings are colliding...
+    if ( bloingRing.radius > targetRing.radius * 0.5
+      && bloingRing.radius < targetRing.radius * 1.25) {
+
+      particle(targetRing.pos, 1000, 5);  // JUICE
+
+      resetCircle();                      // and reset circle
+
+    } 
+  
+  }
+
+  overlapJuice();
+
+  arc(playerRing.pos, playerRing.radius, playerRing.thickness);
+
+  // draw outer circle
+  if (firstHit == 0){
+    color("light_black");
+  } else if (colorTick_prev == 1) {
+    color("cyan");
+  } else if (colorTick_prev == 0){
+    color("yellow");
+  }
+
+  overlapJuice();
+
+  arc(targetRing.pos, targetRing.radius, targetRing.thickness);
+
   // game over - you miss
   if (playerRing.radius <= 0) {
 
@@ -157,30 +213,6 @@ function update() {
     end();
 
   }
-
-  // attempted to press
-  if (input.isJustPressed) {
-
-    // console.log("PRESSED");
-    
-    // if two rings are colliding...
-    if ( playerRing.radius > targetRing.radius * 0.75
-      && playerRing.radius < targetRing.radius * 1.25) {
-
-      particle(targetRing.pos, 1000, 5);  // JUICE
-
-      resetCircle();                      // and reset circle
-
-    } else {
-
-      color("light_red");
-
-    }
-
-  }
-
-  // draw outer circle
-  arc(playerRing.pos, playerRing.radius, playerRing.thickness);
 
 }
 
@@ -209,5 +241,33 @@ function resetCircle() {
     console.log("FASTER");
 
   }
+
+}
+
+function overlapJuice() {
+
+  if ( playerRing.radius > targetRing.radius * 0.75
+
+    && playerRing.radius < targetRing.radius * 1.25) {
+  
+    if (colorTick) {
+      color("cyan");
+    } else {
+      color("yellow");
+    }
+    
+    text("[SPACE]", G.WIDTH/2 - 20, G.HEIGHT/2);
+    
+    color("light_red");
+  
+  } 
+  
+  if ( bloingRing.radius > targetRing.radius * 0.5
+  
+    && bloingRing.radius < targetRing.radius * 1.25) {
+  
+    color("light_red");
+  
+  } 
 
 }
