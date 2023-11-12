@@ -286,7 +286,7 @@ function update() {
       screenShake.x *= 0.3;
       screenShake.y *= 0.3;
 
-      player.rotation -= 0.04;
+      player.rotation -= 0.03775;
 
     }
 
