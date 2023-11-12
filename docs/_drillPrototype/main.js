@@ -130,10 +130,10 @@ function update() {
     floors = [
 
       { pos: vec(70, 100), width: 90, height: 90, radius: 0, type: 1},
-      { pos: vec(170, 80), width: 150, height: 110, radius: 0, type: 1},
-      { pos: vec(370, 35), width: 90, height: 100, radius: 0, type: 1},
-      { pos: vec(400, 120), width: 90, height: 150, radius: 0, type: 1},
-      { pos: vec(510, 80), width: 120, height: 100, radius: 0, type: 1}
+      { pos: vec(170, 80), width: 130, height: 110, radius: 0, type: 1},
+      { pos: vec(335, 35), width: 90, height: 100, radius: 0, type: 1},
+      { pos: vec(350, 120), width: 90, height: 150, radius: 0, type: 1},
+      { pos: vec(460, 80), width: 120, height: 100, radius: 0, type: 1}
 
     ];
 
@@ -348,7 +348,7 @@ function update() {
 	color ("black");
   char("a", player.pos, {rotation: player.rotation});
 
-  if (player.pos.y > G.HEIGHT + 50) {
+  if (player.pos.y > G.HEIGHT + 50 || player.pos.x < - 50) {
 
     window.clearInterval(intervalID);
   
