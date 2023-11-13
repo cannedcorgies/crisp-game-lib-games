@@ -2,9 +2,10 @@ title = "-- ripple --";
 
 description = ` 2 PLAYER - P1 CYAN, P2 YELLOW
 
-- PRESS [SPACE] WHEN CIRCLES OVERLAP
+- PRESS [SPACE] WHEN OUTSIDE CIRCLE IS YOUR COLOR
 
-    - YOUR TURN WHEN OUTER CIRCLE IS YOUR COLOR
+    AND IT OVERLAPS WITH INNER CIRCLE
+
 
   - FIRST PLAYER TO MISS LOSES
 
@@ -166,8 +167,8 @@ function update() {
   if (input.isJustPressed) {
 
     // if two rings are colliding...
-    if ( playerRing.radius > targetRing.radius * 0.75
-      && playerRing.radius < targetRing.radius * 1.25) {
+    if ( playerRing.radius > targetRing.radius * 0.5
+      && playerRing.radius < targetRing.radius * 1.4) {
 
       particle(targetRing.pos, 1000, 5);  // JUICE
 
@@ -189,7 +190,7 @@ function update() {
 
     // if two rings are colliding...
     if ( bloingRing.radius > targetRing.radius * 0.5
-      && bloingRing.radius < targetRing.radius * 1.25) {
+      && bloingRing.radius < targetRing.radius * 1.4) {
 
       particle(targetRing.pos, 1000, 5);  // JUICE
 
@@ -258,7 +259,7 @@ function resetCircle() {
 
 function overlapJuice() {
 
-  if ( playerRing.radius > targetRing.radius * 0.75
+  if ( playerRing.radius > targetRing.radius * 0.5
 
     && playerRing.radius < targetRing.radius * 1.25) {
   
@@ -268,7 +269,7 @@ function overlapJuice() {
       color("yellow");
     }
     
-    text("[SPACE]", G.WIDTH/2 - 20, G.HEIGHT/2);
+    if (firstHit < 5) {text("[SPACE]", G.WIDTH/2 - 20, G.HEIGHT/2);}
     
     color("light_red");
   
