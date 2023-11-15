@@ -139,7 +139,8 @@ function update() {
   }
 
   // interpolate to small size
-  targetRing.radius = defSize_inner + (defSize_inner * ((1 - Math.sin(((ticks - savedTime)/level_time * Math.PI) / 2)))) * 0.1;
+  // targetRing.radius = defSize_inner + (defSize_inner * ((1 - Math.sin(((ticks - savedTime)/level_time * Math.PI) / 2)))) * 0.7;
+  // targetRing.radius = rnd(20, 50);
   
   arc(targetRing.pos, targetRing.radius, targetRing.thickness);
 
@@ -172,6 +173,7 @@ function update() {
 
       particle(targetRing.pos, 1000, 5);  // JUICE
 
+      targetRing.radius = rnd(15, 65);
       resetCircle();                      // and reset circle
 
     } else {
@@ -271,7 +273,7 @@ function overlapJuice() {
     
     if (firstHit < 5) {text("[SPACE]", G.WIDTH/2 - 20, G.HEIGHT/2);}
     
-    color("light_red");
+    color("red");
   
   } 
   
@@ -279,7 +281,7 @@ function overlapJuice() {
   
     && bloingRing.radius < targetRing.radius * 1.25) {
   
-    color("light_red");
+    color("red");
   
   } 
 
