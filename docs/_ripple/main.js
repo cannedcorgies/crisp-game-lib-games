@@ -217,8 +217,8 @@ function update() {
 
 
     // if two rings are colliding...
-    if ( playerRing.radius > targetRing.radius * 0.5
-      && playerRing.radius < targetRing.radius * 1.4) {
+    if ( playerRing.radius > targetRing.radius * 0.7
+      && playerRing.radius < targetRing.radius * 1.2) {
 
 
       particle(targetRing.pos, 1000, 5);  // JUICE
@@ -301,6 +301,8 @@ function resetCircle() {
 
   // console.log("RESET");
 
+  defSize_inner = rnd(defSize_inner_relative * 0.75, defSize_inner_relative * 1.5);
+
   play("coin");
   play("laser");
 
@@ -326,7 +328,7 @@ function resetCircle() {
 
   if (hits >= 5 && level > 0.4) {
 
-    defSize_inner += 5;
+    defSize_inner_relative += 5;
 
     hits = 0;
     level -= 0.1;
@@ -344,7 +346,7 @@ function resetCircle() {
 function overlapJuice() {
 
 
-  if ( playerRing.radius > targetRing.radius * 0.5
+  if ( playerRing.radius > targetRing.radius * 0.8
 
 
     && playerRing.radius < targetRing.radius * 1.25) {
