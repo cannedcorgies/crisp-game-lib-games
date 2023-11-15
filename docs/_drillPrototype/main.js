@@ -134,7 +134,7 @@ function update() {
       { pos: vec(300, 80), width: 500, height: 110, radius: 0, type: 1},
       { pos: vec(800, 80), width: 400, height: 90, radius: 0, type: 1},
       { pos: vec(1200, 80), width: 300, height: 70, radius: 0, type: 1},
-      { pos: vec(1500, 80), width: 275, height: 60, radius: 0, type: 1},
+      { pos: vec(1500, 80), width: 275, height: 45, radius: 0, type: 1},
       { pos: vec(1650, 60), width: 50, height: 75, radius: 0, type: 1},
       { pos: vec(335 + 1470, 35), width: 90, height: 100, radius: 0, type: 1},
       { pos: vec(350 + 1470, 120), width: 90, height: 150, radius: 0, type: 1},
