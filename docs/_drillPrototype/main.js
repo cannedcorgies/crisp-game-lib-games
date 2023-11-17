@@ -309,6 +309,12 @@ function update() {
       screenShake.x *= 4;
       screenShake.y *= 4;
 
+      if (player.pos.x < G.WIDTH/3) {
+
+        player.pos.x += 0.045 * (1 - abs(angle));
+    
+      }
+
       if (player.rotation < 1.8 ) {
         player.rotation += 0.02 * 2;
       }
@@ -348,7 +354,13 @@ function update() {
 ////MOVEMENT
   player.pos.add(player.vel);
   player.pos.add(screenShake);
+  console.log(radians);
   
+  if (player.pos.x < G.WIDTH/3) {
+
+    player.pos.x -= 0.0075 * (1 - abs(angle));
+
+  }
 	
 	color ("black");
   char("a", player.pos, {rotation: player.rotation});

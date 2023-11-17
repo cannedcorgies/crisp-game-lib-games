@@ -218,7 +218,7 @@ function update() {
 
     // if two rings are colliding...
     if ( playerRing.radius > targetRing.radius * 0.7
-      && playerRing.radius < targetRing.radius * 1.2) {
+      && playerRing.radius < targetRing.radius * 1.4) {
 
 
       particle(targetRing.pos, 1000, 5);  // JUICE
@@ -230,7 +230,7 @@ function update() {
     } else {
 
 
-      //endGame();                            // EXPERIMENNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNT
+      endGame();                            // EXPERIMENNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNT
       screenShake_range = screenShake_max;
       screenShake_savedTime = ticks;
       console.log("MISSED");
